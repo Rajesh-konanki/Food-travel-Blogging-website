@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Server Error{% endblock %}
+{% block content %}
+<section class="error-page">
+    <img
+        src="https://images.unsplash.com/photo-1555861496-0666c8981751?w=600"
+        alt="Server error illustration"
+        class="error-image"
+        loading="lazy"
+        onerror="this.src='{{ config.DEFAULT_COVER }}'"
+    >
+    <h1>500 - Server Error</h1>
+    <p>Something went wrong. Please try again in a moment.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back Home</a>
+</section>
+{% endblock %}

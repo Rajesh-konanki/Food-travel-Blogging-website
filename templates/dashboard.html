@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% if comments_mode %}
+    <h2>Pending Comments</h2>
+    {% for comment in comments %}
+        <div class="comment">
+            <p><strong>{{ comment.author_name }}</strong> on {{ comment.post.title }}</p>
+            <p>{{ comment.body }}</p>
+            <form method="post" action="{{ url_for('dashboard.approve_comment', comment_id=comment.id) }}" class="inline-form">
+                <button type="submit" class="btn btn-primary">Approve</button>
+            </form>
+            <form method="post" action="{{ url_for('dashboard.delete_comment', comment_id=comment.id) }}" class="inline-form">
+                <button type="submit" class="btn btn-primary">Delete</button>
+            </form>
+        </div>
+    {% else %}
+        <p>No pending comments.</p>
+    {% endfor %}
+{% else %}
+    <h2>Dashboard</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_posts }}</div>
+            <div class="stat-label">Total Posts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ published_posts }}</div>
+            <div class="stat-label">Published</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ draft_posts }}</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_comments }}</div>
+            <div class="stat-label">Total Comments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_comments }}</div>
+            <div class="stat-label">Pending Comments</div>
+            <a class="btn btn-primary" href="{{ url_for('dashboard.pending_comments') }}">Review</a>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_views }}</div>
+            <div class="stat-label">Total Views</div>
+        </div>
+    </div>
+    <p>
+        <a class="btn btn-primary" href="{{ url_for('dashboard.create_post') }}">Create Post</a>
+        <a class="btn btn-outline" href="{{ url_for('dashboard.posts_list') }}">Manage Posts</a>
+    </p>
+    <table class="table">
+        <tr><th>Image</th><th>Title</th><th>Status</th><th>Views</th><th>Actions</th></tr>
+        {% for post in recent_posts %}
+            <tr>
+                <td>
+                    <img
+                        src="{% if post.cover_image and post.cover_image.startswith('http') %}{{ post.cover_image }}{% elif post.cover_image %}{{ url_for('static', filename='uploads/' ~ post.cover_image) }}{% else %}{{ config.DEFAULT_COVER }}{% endif %}"
+                        alt="Thumbnail for {{ post.title }}"
+                        class="table-thumbnail"
+                        loading="lazy"
+                        onerror="this.src='{{ config.DEFAULT_COVER }}'"
+                    >
+                </td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.status }}</td>
+                <td>{{ post.views }}</td>
+                <td>
+                    <a class="btn btn-outline" href="{{ url_for('dashboard.edit_post', post_id=post.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('dashboard.delete_post', post_id=post.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+{% endblock %}

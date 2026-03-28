@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - Flask Blog{% endblock %}
+{% block content %}
+<div class="post-hero">
+    <img
+        src="{% if post.cover_image and post.cover_image.startswith('http') %}{{ post.cover_image }}{% elif post.cover_image %}{{ url_for('static', filename='uploads/' ~ post.cover_image) }}{% else %}{{ config.DEFAULT_COVER }}{% endif %}"
+        alt="Cover image for {{ post.title }}"
+        class="post-hero-image"
+        loading="lazy"
+        onerror="this.src='{{ config.DEFAULT_COVER }}'"
+    >
+    <div class="post-hero-overlay">
+        <div class="post-hero-content">
+            {% if post.category %}
+            <a href="{{ url_for('main.by_category', slug=post.category.slug) }}"
+               class="badge-category">{{ post.category.name }}</a>
+            {% endif %}
+            <h1 class="post-hero-title">{{ post.title }}</h1>
+            <div class="post-hero-meta">
+                <img
+                    src="{{ post.author.avatar or config.AVATAR_DEFAULT }}"
+                    alt="Avatar of {{ post.author.username }}"
+                    class="author-avatar-md"
+                    loading="lazy"
+                    onerror="this.src='{{ config.AVATAR_DEFAULT }}'"
+                >
+                <div>
+                    <div class="author-name">{{ post.author.username }}</div>
+                    <div class="post-date">
+                        {{ post.created_at.strftime('%B %d, %Y') }} · {{ post.views }} views
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<article class="post-detail">
+    <div class="tag-cloud">
+        {% for tag in post.tags %}
+            <a class="badge-tag" href="{{ url_for('main.by_tag', slug=tag.slug) }}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+    <div class="post-content">{{ post.content|safe }}</div>
+</article>
+
+<section class="related-posts">
+    <h3 class="section-title">Related Posts</h3>
+    <div class="related-grid">
+        {% for related in related_posts %}
+        <a href="{{ url_for('main.post_detail', slug=related.slug) }}" class="related-card">
+            <img
+                src="{% if related.cover_image and related.cover_image.startswith('http') %}{{ related.cover_image }}{% elif related.cover_image %}{{ url_for('static', filename='uploads/' ~ related.cover_image) }}{% else %}{{ config.DEFAULT_COVER }}{% endif %}"
+                alt="Cover image for related post {{ related.title }}"
+                class="related-card-image"
+                loading="lazy"
+                onerror="this.src='{{ config.DEFAULT_COVER }}'"
+            >
+            <div class="related-card-body">
+                <span class="badge-category">{{ related.category.name if related.category else 'General' }}</span>
+                <h4>{{ related.title }}</h4>
+                <p>{{ related.created_at.strftime('%b %d, %Y') }}</p>
+            </div>
+        </a>
+        {% else %}
+            <p>No related posts.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="sidebar-widget">
+    <h3>Marvel Universe</h3>
+    <a href="{{ marvel_youtube_url }}"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="youtube-link">
+        🎬 Watch on YouTube
+    </a>
+</div>
+
+<section class="comments">
+    <h3>Comments</h3>
+    {% for comment in comments %}
+        <div class="comment">
+            <strong>{{ comment.author_name }}</strong>
+            <small>{{ comment.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+            <p>{{ comment.body }}</p>
+        </div>
+    {% else %}
+        <p>No comments yet.</p>
+    {% endfor %}
+
+    <h4>Leave a Comment</h4>
+    <form method="post" action="{{ url_for('main.submit_comment', slug=post.slug) }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.author_name.label(class_="form-label") }}
+            {{ form.author_name(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.author_email.label(class_="form-label") }}
+            {{ form.author_email(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.body.label(class_="form-label") }}
+            {{ form.body(rows=4, class_="form-control") }}
+        </div>
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+</section>
+{% endblock %}

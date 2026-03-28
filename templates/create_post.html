@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Create Post - Dashboard{% endblock %}
+{% block content %}
+{% if mode == "list" %}
+    <h2>All Posts</h2>
+    <p><a class="btn btn-primary" href="{{ url_for('dashboard.create_post') }}">Create New Post</a></p>
+    <table class="table">
+        <tr><th>Title</th><th>Status</th><th>Views</th><th>Actions</th></tr>
+        {% for post in posts %}
+            <tr>
+                <td>{{ post.title }}</td>
+                <td>{{ post.status }}</td>
+                <td>{{ post.views }}</td>
+                <td>
+                    <a class="btn btn-outline" href="{{ url_for('dashboard.edit_post', post_id=post.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('dashboard.delete_post', post_id=post.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h2>Create Post</h2>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label(class_="form-label") }}
+            {{ form.title(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.content.label(class_="form-label") }}
+            {{ form.content(rows=10, class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.category.label(class_="form-label") }}
+            {{ form.category(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.tags.label(class_="form-label") }}
+            {{ form.tags(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.status.label(class_="form-label") }}
+            {{ form.status(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.cover_image.label(class_="form-label") }}
+            {{ form.cover_image(class_="form-control") }}
+        </div>
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+{% endif %}
+{% endblock %}
